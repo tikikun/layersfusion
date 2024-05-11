@@ -7,20 +7,28 @@ import torch
 if __name__ == "__main__":
     model_id = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
-    model = LlamaForCausalLM.from_pretrained(
-        pretrained_model_name_or_path=model_id,device_map="mps",torch_dtype=torch.bfloat16
+        # Unpack the returned values properly
+    result = LlamaForCausalLM.from_pretrained(
+        pretrained_model_name_or_path=model_id, device_map="mps", torch_dtype=torch.bfloat16
     )
+
+    # Check if the result is a tuple and unpack accordingly
+    if isinstance(result, tuple):
+        model = result[0]  # Assuming the first element is the model
+    else:
+        model = result
+
     tokenizer = LlamaTokenizer.from_pretrained(model_id)
 
-    first_part = list(model.model.layers[:12])
+    first_part = list(model.model.layers)[:12]
 
-    fusion_part1 = list(model.model.layers[12:14])
+    fusion_part1 = list(model.model.layers)[12:14]
 
-    cont_part = list(model.model.layers[14:24])
+    cont_part = list(model.model.layers)[14:24]
 
-    fusion_part2 = list(model.model.layers[24:27] )
+    fusion_part2 = list(model.model.layers)[24:27]
 
-    last_part = list( model.model.layers[27:] )
+    last_part = list( model.model.layers)[27:]
 
 
     fused_layers = first_part + [ layer_avg_stack(model,fusion_part1) ] + cont_part + [ layer_avg_stack(model,fusion_part2) ] + last_part
