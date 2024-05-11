@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='layerswise',
+    name='layersfusion',
     version='0.0.1',
     include_package_data=True,
     python_requires='>=3.10.0',
